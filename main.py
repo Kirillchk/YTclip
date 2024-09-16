@@ -3,10 +3,10 @@ import logging
 import config
 from aiogram import Bot, Dispatcher
 from apps.handler import rout
+from y2mate_api import Handler
 
 bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
-
 
 async def main():
     dp.include_router(rout)
@@ -14,9 +14,9 @@ async def main():
 
 
 if __name__ == "__main__":
+
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
-
 
 
 
