@@ -2,12 +2,18 @@ from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
 from config import adminMainListId
+from YouTobeVideo import download_video_youtube
+from aiogram.types import InputFile, FSInputFile
+from aiogram import types
+import os
 
 rout = Router()
 
 adminUserListId = [
 
 ]
+
+UrlYOUTOBE = "https://www.youtube.com/"
 
 # Список доступных команд
 commands_list = [
@@ -22,8 +28,6 @@ async def handler_command_start(message: Message):
     commands_text = "\n".join(commands_list)
     await message.answer(f"Привет! Вот список доступных команд:\n{commands_text}")
 
-
-UrlYOUTOBE = "https://www.youtube.com/"
 
 @rout.message(Command("User_id"))
 async def handler_id_user(message: Message):
@@ -68,5 +72,20 @@ async def handler_add_admit(message: Message):
 
 @rout.message()
 async def hendler_command_AddProduct(message: Message):
-    if UrlYOUTOBE in message.text and message.from_user.id in adminUserListId or message.from_user.id in adminMainListId:
-        await message.answer("youtobe url")
+    if UrlYOUTOBE in message.text and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):        # Загружаем видео по ссылке
+        await download_video_youtube(message.text)
+
+        video_dir = r"G:/botTelegram/video"
+        files = os.listdir(video_dir)
+
+        if files:
+            # Получаем самый новый файл по времени изменения
+            latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(video_dir, f)))
+            video_file_path = os.path.join(video_dir, latest_file)
+            video = FSInputFile(video_file_path)
+            await message.answer_video(video)
+
+            # Удаляем файл после отправки
+            os.remove(video_file_path)
+        else:
+            await message.answer("Видео не найдено в папке.")
