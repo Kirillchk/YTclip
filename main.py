@@ -9,11 +9,12 @@ bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
 
 
+
+
 async def main():
     await set_bot_commands(bot)
     dp.include_router(rout)
     await dp.start_polling(bot)
-
 
 
 if __name__ == "__main__":

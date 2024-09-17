@@ -9,17 +9,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, NoSuchWindowException, NoSuchElementException
 from datetime import datetime, timedelta
-
-download_path = r"G:\botTelegram\video"
-# Path to your GeckoDriver executable for Firefox
-gecko_driver_path = r"G:\botTelegram\geckodriver.exe"
-# Path to the Firefox browser executable
-firefox_binary_path = r"C:\Program Files\Mozilla Firefox\firefox.exe"
+from config import download_path,gecko_driver_path,firefox_binary_path
 
 
 async def download_video_youtube(input_string):
-
-
     # Set Firefox options to include the binary location
     options = Options()
     options.binary_location = firefox_binary_path
