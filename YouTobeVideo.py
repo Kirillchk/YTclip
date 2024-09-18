@@ -111,10 +111,9 @@ def download_video_youtube(input_string):
             is_downloaded = wait_for_download(download_path)
             if is_downloaded:
                 print("Downloaded successfully")
-                driver.close()
+                driver.quit()
             else:
                 print("Not downloaded")
-                driver.close()
         except TimeoutException:
             print("No video element found. Executing alternative logic...")
             # Alternative logic when no video is found

@@ -88,18 +88,16 @@ async def hendler_command_AddProduct(message: Message):
 
             # Create FSInputFile object
             video = FSInputFile(video_file_path)
-
             time_data = message.text.split()
-            print(time_data)
-            # Pass the file path string to trim_video function
-            trim_video(video_file_path, trimed_path, conv(time_data[1]), conv(time_data[2]))
-
-            # latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(trimed_path, f)))
-            # trimed_video_file_path = r"E:\code\Trimed vids\trimmed_video.mp4"
-            trimed_video = FSInputFile(trimed_video_file_path)
-
-            await message.answer_video(trimed_video)
-            print(3)
-            os.remove(video_file_path)
+            if len(time_data) > 1:
+                print(time_data)
+                trim_video(video_file_path, trimed_path, conv(time_data[1]), conv(time_data[2]))
+                trimed_video = FSInputFile(trimed_video_file_path)
+                await message.answer_video(trimed_video)
+                os.remove(video_file_path)
+                os.remove(trimed_video_file_path)
+            else:
+                await message.answer_video(video)
+                os.remove(video_file_path)
         else:
             await message.answer("Видео не найдено в папке.")
