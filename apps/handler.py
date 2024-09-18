@@ -74,7 +74,8 @@ async def handler_add_admit(message: Message):
 async def hendler_command_AddProduct(message: Message):
     if UrlYOUTOBE in message.text and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):        # Загружаем видео по ссылке
         await download_video_youtube(message.text)
-
+        await message.answer(message.text.split()[1])
+        await message.answer(message.text.split()[2])
         video_dir = r"G:/botTelegram/video"
         files = os.listdir(video_dir)
 

@@ -3,14 +3,14 @@ from y2mate_api import first_query, second_query, third_query, Handler
 from os import path, makedirs
 
 # Прокси-сервер
-proxies = {
-    "http": "http://108.61.166.152:8080",
-    "https": "http://108.61.166.152:8080"
-}
-
-# Создаём сессию requests с прокси
-session = requests.Session()
-session.proxies.update(proxies)
+#proxies = {
+#    "http": "http://108.61.166.152:8080",
+#    "https": "http://108.61.166.152:8080"
+#}
+#
+## Создаём сессию requests с прокси
+#session = requests.Session()
+#session.proxies.update(proxies)
 
 # Настройка обработчика
 handler = Handler("")
