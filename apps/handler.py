@@ -1,9 +1,11 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
-from config import adminMainListId, download_path
+from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
 from YouTobeVideo import download_video_youtube
 from aiogram.types import InputFile, FSInputFile
+from Trim import trim_video
+from converter import convert_time_string_to_tuple as conv
 from aiogram import types
 import os
 
@@ -56,7 +58,6 @@ async def handler_remove_admin(message: Message):
 
 
 
-
 @rout.message(Command("AddAdmin"))
 async def handler_add_admit(message: Message):
     if message.from_user.id in adminUserListId or message.from_user.id in adminMainListId:  # Проверка, что отправитель - администратор
@@ -93,19 +94,30 @@ async def handler_command_AddProduct(message: Message):
     if url.startswith(UrlYOUTOBE[0]) and (
             message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
         # Загружаем видео по ссылке
-        await download_video_youtube(url)
+        download_video_youtube(url)
+        print(1)
 
         video_dir = download_path
         files = os.listdir(video_dir)
-
         if files:
-            # Получаем самый новый файл по времени изменения
+            print(2)
             latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(video_dir, f)))
             video_file_path = os.path.join(video_dir, latest_file)
-            video = FSInputFile(video_file_path)
-            await message.answer_video(video)
 
-            # Удаляем файл после отправки
+            # Create FSInputFile object
+            video = FSInputFile(video_file_path)
+
+            time_data = message.text.split()
+            print(time_data)
+            # Pass the file path string to trim_video function
+            trim_video(video_file_path, trimed_path, conv(time_data[1]), conv(time_data[2]))
+
+            # latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(trimed_path, f)))
+            # trimed_video_file_path = r"E:\code\Trimed vids\trimmed_video.mp4"
+            trimed_video = FSInputFile(trimed_video_file_path)
+
+            await message.answer_video(trimed_video)
+            print(3)
             os.remove(video_file_path)
         else:
             await message.answer("Видео не найдено в папке.")

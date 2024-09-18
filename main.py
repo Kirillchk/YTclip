@@ -9,8 +9,6 @@ bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
 
 
-
-
 async def main():
     await set_bot_commands(bot)
     dp.include_router(rout)
@@ -20,3 +18,4 @@ async def main():
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO)
     asyncio.run(main())
+
