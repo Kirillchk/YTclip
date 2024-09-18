@@ -15,7 +15,10 @@ adminUserListId = [
 
 ]
 
-UrlYOUTOBE = "https://www.youtube.com/"
+UrlYOUTOBE = [
+    "https://www.youtube.com/",
+    "https://youtu.be/"
+]
 
 # Список доступных команд
 commands_list = [
@@ -73,12 +76,27 @@ async def handler_add_admit(message: Message):
         await message.answer("У вас нет прав для добавления администраторов.")
 
 
+UrlYOUTOBE = [
+    "https://www.youtube.com/",
+    "https://youtu.be/"
+]
+
+
 @rout.message()
-async def hendler_command_AddProduct(message: Message):
-    if UrlYOUTOBE in message.text and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
-        # Download video from the URL
-        download_video_youtube(message.text.split()[0])
+async def handler_command_AddProduct(message: Message):
+    url = message.text
+
+    # Проверка, если это короткий URL
+    if url.startswith(UrlYOUTOBE[1]):
+        # Заменяем короткий URL на полный
+        url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
+
+    if url.startswith(UrlYOUTOBE[0]) and (
+            message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
+        # Загружаем видео по ссылке
+        download_video_youtube(url.split()[0])
         print(1)
+
         video_dir = download_path
         files = os.listdir(video_dir)
         if files:
