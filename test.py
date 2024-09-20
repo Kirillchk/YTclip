@@ -56,6 +56,14 @@
 #if downloaded_file:
 #    print(f"Video file available at: {downloaded_file}")
 #
+# Прокси-сервер
+#proxies = {
+#    "http": "http://108.61.166.152:8080",
+#    "https": "http://108.61.166.152:8080"
+#}
+#
+## Создаём сессию requests с прокси
+#session = requests.Session()
 
 from y2mate_api import Handler
 import os
