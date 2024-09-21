@@ -84,19 +84,19 @@ UrlYOUTOBE = [
 
 
 @rout.message()
-async def handler_command_AddProduct(message: Message):
+async def handler_command_add_product(message: Message):
     url = message.text
 
     # Проверка, если это короткий URL
     if url.startswith(UrlYOUTOBE[1]):
         # Заменяем короткий URL на полный
         url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
-
+    print(1)
+    print(url)
     if url.startswith(UrlYOUTOBE[0]) and (
             message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
         # Загружаем видео по ссылке
-        download_video_youtube(UrlYOUTOBE[0])
-        print(1)
+        download_video_youtube(url)
 
         video_dir = download_path
         files = os.listdir(video_dir)
