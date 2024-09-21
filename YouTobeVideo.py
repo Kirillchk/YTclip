@@ -1,6 +1,5 @@
 import pyautogui
 import time
-import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.service import Service
@@ -8,10 +7,9 @@ from selenium.webdriver.firefox.options import Options
 from selenium.webdriver import ActionChains
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchWindowException, NoSuchElementException
-from datetime import datetime, timedelta
 from config import download_path, gecko_driver_path, firefox_binary_path
-
+from watchdog.observers import Observer
+from watchdog.events import FileSystemEventHandler
 
 def download_video_youtube(input_string):
     options = Options()
@@ -43,96 +41,98 @@ def download_video_youtube(input_string):
     button.click()
     print('submitted')
 
-    link_text = 'Download'
-    max_retries = 12
-    retries = 0
+    # Wait until the 'loading_img' display property becomes 'none'
+    WebDriverWait(driver, 10).until(
+        lambda _: driver.find_element(By.ID, "loading_img").get_attribute("style").find("display: none") != -1
+    )
 
-    while retries < max_retries:
-        try:
-            WebDriverWait(driver, 1).until(
-                EC.element_to_be_clickable((By.LINK_TEXT, link_text))
-            ).click()
-            print(f'Try {retries + 1}: Download link clicked')
+    WebDriverWait(driver, 5).until(
+        EC.element_to_be_clickable((By.LINK_TEXT, 'Download'))
+    ).click()
 
-            WebDriverWait(driver, 5).until(
-                EC.number_of_windows_to_be(2)
-            )
-            print('New tab opened, proceeding with download...')
-            break
+    WebDriverWait(driver, 5).until(
+        EC.number_of_windows_to_be(2)
+    )
+    time.sleep(1)
+    driver.switch_to.window(driver.window_handles[-1])
+    video_elements = driver.find_elements(By.TAG_NAME, 'video')
+    if video_elements:
+        print('Video element found, proceeding with download...')
 
-        except TimeoutException:
-            retries += 1
-            print(f'Try {retries}: Failed, retrying...')
+        # Execute JavaScript to create a download link for the video and click it
+        actions = ActionChains(driver)
+        actions.context_click(video_elements[0]).perform()
+        print('Context menu opened')
 
-    if retries == max_retries:
-        print('Max retries reached. Unable to click the download link or open a new tab.')
+        # Simulate pressing down arrow to navigate to 'Save As' and press Enter
+        time.sleep(1)
 
-    if retries < max_retries:
+        for _ in range(5):
+            pyautogui.press('up')
+        pyautogui.press('enter')
         time.sleep(2)
-        print('Checking for video element...')
+        pyautogui.press('enter')
 
-        original_window = driver.current_window_handle
+        print('Save As initiated')
 
-        for handle in driver.window_handles:
-            if handle != original_window:
-                try:
-                    driver.switch_to.window(handle)
-                    print("Switched to the new tab.")
-                except NoSuchWindowException:
-                    print("Failed to switch to the new tab, the window might have been closed.")
-                    driver.quit()
-                    exit()
+        is_downloaded = wait_for_download(download_path)
+        if is_downloaded:
+            print("Downloaded successfully")
+            driver.quit()
+        else:
+            print("Not downloaded")
+    else:
+        print("No video element found. Executing alternative logic...")
+        # Alternative logic when no video is found
+        is_downloaded = wait_for_download(download_path)
+        if is_downloaded:
+            print("Downloaded successfully")
+            driver.quit()
+        else:
+            print("Not downloaded")
 
-                break
 
-        # Check if the video element exists in the newly opened tab
-        try:
-            video_element = WebDriverWait(driver, 10).until(
-                EC.presence_of_element_located((By.TAG_NAME, 'video'))
-            )
-            print('Video element found, proceeding with download...')
+class DownloadHandler(FileSystemEventHandler):
+    def __init__(self):
+        super().__init__()
+        self.download_completed = False
 
-            # Execute JavaScript to create a download link for the video and click it
-            actions = ActionChains(driver)
-            actions.context_click(video_element).perform()
-            print('Context menu opened')
+    def on_created(self, event):
+        if event.src_path.endswith('.mp4'):
+            print(f"Download started: {event.src_path}")
+        elif event.src_path.endswith('.part'):
+            print(f"Download in progress: {event.src_path}")
 
-            # Simulate pressing down arrow to navigate to 'Save As' and press Enter
-            time.sleep(1)
-            
-            for _ in range(5):
-                pyautogui.press('up')
-            pyautogui.press('enter')
-            time.sleep(2)
-            pyautogui.press('enter')
+    def on_modified(self, event):
+        if event.src_path.endswith('.mp4'):
+            self.download_completed = True
+            print(f"Download completed: {event.src_path}")
 
-            print('Save As initiated')
 
-            is_downloaded = wait_for_download(download_path)
-            if is_downloaded:
-                print("Downloaded successfully")
-                driver.quit()
-            else:
-                print("Not downloaded")
-        except TimeoutException:
-            print("No video element found. Executing alternative logic...")
-            # Alternative logic when no video is found
-            is_downloaded = wait_for_download(download_path)
-            if is_downloaded:
-                print("Downloaded successfully")
-                driver.close()
-            else:
-                print("Not downloaded")
-                driver.close()
+def watch_downloads(path, handler):
+    observer = Observer()
+    observer.schedule(handler, path, recursive=False)
+    observer.start()
+    return observer
 
 
 def wait_for_download(path, timeout=60):
     end_time = time.time() + timeout
-    while time.time() < end_time:
-        files = os.listdir(path)
-        if any(file.endswith(".mp4") for file in files):
-            print("Download completed.")
-            return True
-        time.sleep(1)
+    handler = DownloadHandler()
+    observer = watch_downloads(path, handler)
+
+    try:
+        while time.time() < end_time:
+            time.sleep(1)  # Allow time for events to be captured
+            if handler.download_completed:
+                return True
+    finally:
+        observer.stop()
+        observer.join()
+
     print("Download did not complete in the given time.")
     return False
+
+
+
+

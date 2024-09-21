@@ -1,4 +1,5 @@
 import aiohttp
+import asyncio
 import os
 from config import download_path  # Подключаем путь для сохранения видео
 
@@ -40,6 +41,5 @@ url = "https://vt.tiktok.com/ZS2CBafX9/"
 #url = "https://www.youtube.com/watch?v=unjjUqBQlVY"
 
 # Запуск асинхронной задачи
-import asyncio
 
 asyncio.run(download_tiktok_video(url, download_path))
