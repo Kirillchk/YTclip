@@ -29,10 +29,3 @@ def trim_video(input_file_path, output_file, start_time, end_time):
     print("Video trimming completed and file saved.")
 
 
-# Example usage:
-# input_file = r"E:/code/Vids/What to do if you see a sheep stuck on its back(1).mp4"  # Full path to the video file
-# output_file = r"E:/code/Trimed vids/trimmed_video.mp4"  # Full path for the output file
-# start_time = (0, 0, 2)  # 0:00:02 (hours, minutes, seconds)
-# end_time = (0, 0, 12)   # 0:00:12 (hours, minutes, seconds)
-
-# trim_video(input_file, output_file, start_time, end_time)

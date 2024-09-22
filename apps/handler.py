@@ -5,7 +5,7 @@ from config import adminMainListId, download_path
 from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
 from aiogram.types import InputFile, FSInputFile
 from Trim import trim_video
-from converter import convert_time_string_to_tuple as conv
+from converter import convert_time_string_to_seconds as conv
 from aiogram import types
 from YouTobeVideo import download_video_youtube
 import os
@@ -77,50 +77,30 @@ async def handler_add_admit(message: Message):
         await message.answer("У вас нет прав для добавления администраторов.")
 
 
-UrlYOUTOBE = [
-    "https://www.youtube.com/",
-    "https://youtu.be/"
-]
-
-
 @rout.message()
 async def handler_command_add_product(message: Message):
-    url = message.text
-
-
-
-    # Проверка, если это короткий URL
-    if url.startswith(UrlYOUTOBE[1]):
-        # Заменяем короткий URL на полный
+    text = message.text.split(' ')
+    text = [item for item in text if item]
+    length = len(text)
+    start = conv(None if length < 2 else text[1])
+    end = conv(None if length < 3 else text[2])
+    url = text[0]
+    if url.startswith("https://youtu.be/"):
         url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
-    print(1)
-    print(url)
-    if url.startswith(UrlYOUTOBE[0]) and (
-            message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
-        # Загружаем видео по ссылке
+    # await message.answer(f'url: {url} \nstart: {start} \nend: {end}')
+    if start is None:
         download_video_youtube(url)
+    else:
+        download_video_youtube(url, start, end)
 
-        video_dir = download_path
-        files = os.listdir(video_dir)
-        if files:
-            # Получаем самый новый файл по времени изменения
-            print(2)
-            latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(video_dir, f)))
-            video_file_path = os.path.join(video_dir, latest_file)
-            # Create FSInputFile object
-            video = FSInputFile(video_file_path)
-            await message.answer_video(video)
+    files = os.listdir(download_path)
+    if files:
+        latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(download_path, f)))
+        video_file_path = os.path.join(download_path, latest_file)
+        video = FSInputFile(video_file_path)
+        await message.answer_video(video)
+        os.remove(video_file_path)
+    else:
+        await message.answer("Video was not found")
 
-            # Удаляем файл после отправки
-            time_data = message.text.split()
-            print(time_data)
-            # Pass the file path string to trim_video function
-            trim_video(video_file_path, trimed_path, conv(time_data[1]), conv(time_data[2]))
-            # latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(trimed_path, f)))
-            # trimed_video_file_path = r"E:\code\Trimed vids\trimmed_video.mp4"
-            trimed_video = FSInputFile(trimed_video_file_path)
-            await message.answer_video(trimed_video)
-            print(3)
-            os.remove(video_file_path)
-        else:
-            await message.answer("Видео не найдено в папке.")
+
