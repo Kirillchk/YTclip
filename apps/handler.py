@@ -3,11 +3,11 @@ from aiogram import Router
 from aiogram.types import Message
 from config import adminMainListId, download_path
 from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
-from YouTobeVideo import download_video_youtube
 from aiogram.types import InputFile, FSInputFile
 from Trim import trim_video
 from converter import convert_time_string_to_tuple as conv
 from aiogram import types
+from YouTobeVideo import download_video_youtube
 import os
 
 rout = Router()
@@ -87,15 +87,16 @@ UrlYOUTOBE = [
 async def handler_command_AddProduct(message: Message):
     url = message.text
 
+
+
     # Проверка, если это короткий URL
     if url.startswith(UrlYOUTOBE[1]):
         # Заменяем короткий URL на полный
         url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
 
-    if url.startswith(UrlYOUTOBE[0]) and (
-            message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
+    if url.startswith(UrlYOUTOBE[0]) and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
         # Загружаем видео по ссылке
-        download_video_youtube(UrlYOUTOBE[0])
+        download_video_youtube(url)
         print(1)
 
         video_dir = download_path
