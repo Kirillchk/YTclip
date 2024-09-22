@@ -1,12 +1,9 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
-from config import adminMainListId, download_path
 from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
-from aiogram.types import InputFile, FSInputFile
-from Trim import trim_video
+from aiogram.types import FSInputFile
 from converter import convert_time_string_to_seconds as conv
-from aiogram import types
 from YouTobeVideo import download_video_youtube
 import os
 
