@@ -95,32 +95,35 @@ async def handler_command_add_product(message: Message):
         url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
     print(1)
     print(url)
-    if url.startswith(UrlYOUTOBE[0]) and (
-            message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
+    if url.startswith(UrlYOUTOBE[0]) and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
         # Загружаем видео по ссылке
         download_video_youtube(url)
 
-        video_dir = download_path
-        files = os.listdir(video_dir)
+
+        files = os.listdir(download_path)
         if files:
             # Получаем самый новый файл по времени изменения
             print(2)
-            latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(video_dir, f)))
-            video_file_path = os.path.join(video_dir, latest_file)
+            latest_file = files[0]
+            video_file_path = os.path.join(download_path, latest_file)
+            print(3)
             # Create FSInputFile object
             video = FSInputFile(video_file_path)
+            print(4)
             await message.answer_video(video)
-
-            # Удаляем файл после отправки
-            time_data = message.text.split()
-            print(time_data)
-            # Pass the file path string to trim_video function
-            trim_video(video_file_path, trimed_path, conv(time_data[1]), conv(time_data[2]))
-            # latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(trimed_path, f)))
-            # trimed_video_file_path = r"E:\code\Trimed vids\trimmed_video.mp4"
-            trimed_video = FSInputFile(trimed_video_file_path)
-            await message.answer_video(trimed_video)
-            print(3)
-            os.remove(video_file_path)
+            print(5)
+            clear_directory(download_path)
         else:
             await message.answer("Видео не найдено в папке.")
+
+def clear_directory(directory_path):
+    """Удаляет все файлы из указанной папки."""
+    try:
+        files = os.listdir(directory_path)
+        for file in files:
+            file_path = os.path.join(directory_path, file)
+            if os.path.isfile(file_path):
+                os.remove(file_path)
+        print(f"Все файлы из папки {directory_path} успешно удалены.")
+    except Exception as e:
+        print(f"Ошибка при удалении файлов из папки {directory_path}: {e}")

@@ -1,9 +1,4 @@
-<<<<<<< HEAD
-import os
-import aiohttp
-import asyncio
 from pathlib import Path
-=======
 import aiohttp
 import asyncio
 import os
@@ -46,8 +41,6 @@ async def download_tiktok_video(url, save_path):
 url = "https://vt.tiktok.com/ZS2CBafX9/"
 #url = "https://www.youtube.com/watch?v=unjjUqBQlVY"
 
-# Запуск асинхронной задачи
->>>>>>> 4f6b80bfdd67d5d10af9fe14002b7c98657a1cfb
 
 # Ссылка на видео TikTok
 link = "https://vt.tiktok.com/ZS2CBafX9/"
