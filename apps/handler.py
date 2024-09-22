@@ -1,12 +1,9 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
-from config import adminMainListId, download_path
 from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
-from aiogram.types import InputFile, FSInputFile
-from Trim import trim_video
-from converter import convert_time_string_to_tuple as conv
-from aiogram import types
+from aiogram.types import FSInputFile
+from converter import convert_time_string_to_seconds as conv
 from YouTobeVideo import download_video_youtube
 import os
 
@@ -77,44 +74,32 @@ async def handler_add_admit(message: Message):
         await message.answer("У вас нет прав для добавления администраторов.")
 
 
-UrlYOUTOBE = [
-    "https://www.youtube.com/",
-    "https://youtu.be/"
-]
-
-
 @rout.message()
 async def handler_command_add_product(message: Message):
-    url = message.text
-
-
-
-    # Проверка, если это короткий URL
-    if url.startswith(UrlYOUTOBE[1]):
-        # Заменяем короткий URL на полный
+    text = message.text.split(' ')
+    text = [item for item in text if item]
+    length = len(text)
+    start = conv(None if length < 2 else text[1])
+    end = conv(None if length < 3 else text[2])
+    url = text[0]
+    if url.startswith("https://youtu.be/"):
         url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
-    print(1)
-    print(url)
-    if url.startswith(UrlYOUTOBE[0]) and (message.from_user.id in adminUserListId or message.from_user.id in adminMainListId):
-        # Загружаем видео по ссылке
+    # await message.answer(f'url: {url} \nstart: {start} \nend: {end}')
+    if start is None:
         download_video_youtube(url)
+    else:
+        download_video_youtube(url, start, end)
 
+    files = os.listdir(download_path)
+    if files:
+        latest_file = max(files, key=lambda f: os.path.getmtime(os.path.join(download_path, f)))
+        video_file_path = os.path.join(download_path, latest_file)
+        video = FSInputFile(video_file_path)
+        await message.answer_video(video)
+        os.remove(video_file_path)
+    else:
+        await message.answer("Video was not found")
 
-        files = os.listdir(download_path)
-        if files:
-            # Получаем самый новый файл по времени изменения
-            print(2)
-            latest_file = files[0]
-            video_file_path = os.path.join(download_path, latest_file)
-            print(3)
-            # Create FSInputFile object
-            video = FSInputFile(video_file_path)
-            print(4)
-            await message.answer_video(video)
-            print(5)
-            clear_directory(download_path)
-        else:
-            await message.answer("Видео не найдено в папке.")
 
 def clear_directory(directory_path):
     """Удаляет все файлы из указанной папки."""
