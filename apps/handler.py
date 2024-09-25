@@ -1,7 +1,7 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
-from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
+from config import adminMainListId, download_path
 from aiogram.types import FSInputFile
 from converter import convert_time_string_to_seconds as conv
 from YouTobeVideo import download_video_youtube
@@ -91,18 +91,15 @@ def is_valid_url(url):
 async def handler_command_add_product(message: Message):
     async with process_lock:
         text = message.text.split(' ')
+        url = text[0]
+        if url.startswith("https://youtu.be/"):
+            url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
+        elif not url.startswith("https://www.youtube.com/"):
+            return
         text = [item for item in text if item]
         length = len(text)
         start = conv(None if length < 2 else text[1])
         end = conv(None if length < 3 else text[2])
-        url = text[0]
-
-        if not is_valid_url(url):
-            return
-
-        if url.startswith("https://youtu.be/"):
-            url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
-
         if start is None:
             message_lowed = await message.answer("Загрузка...")
             download_video_youtube(url)

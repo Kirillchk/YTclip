@@ -1,10 +1,7 @@
-import pyautogui
 import time
 import yt_dlp
 from yt_dlp import download_range_func
-from config import download_path, gecko_driver_path, firefox_binary_path
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from config import download_path
 
 
 def download_video_youtube(input_string, start_time=None, end_time=None):
