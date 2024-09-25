@@ -90,6 +90,7 @@ def is_valid_url(url):
 @rout.message()
 async def handler_command_add_product(message: Message):
     async with process_lock:
+        clear_directory(download_path)
         text = message.text.split(' ')
         url = text[0]
         if url.startswith("https://youtu.be/"):
@@ -116,7 +117,6 @@ async def handler_command_add_product(message: Message):
             await message.answer_video(video)
             await message_lowed.delete()
             await message.delete()
-            clear_directory(download_path)
         else:
             await message.answer("Video was not found")
 
