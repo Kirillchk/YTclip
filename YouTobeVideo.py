@@ -1,3 +1,4 @@
+import time
 import yt_dlp
 from yt_dlp import download_range_func
 from config import download_path

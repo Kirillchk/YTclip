@@ -1,7 +1,11 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
+<<<<<<< HEAD
 from config import adminMainListId, download_path
+=======
+from config import download_path
+>>>>>>> 05e1f37274116ee528aa48e0ae293133424b6f5f
 from aiogram.types import FSInputFile
 from converter import convert_time_string_to_seconds as conv
 from YouTobeVideo import download_video_youtube
@@ -11,6 +15,7 @@ from apps.TikTokVideo import download_tiktok_video
 
 rout = Router()
 process_lock = asyncio.Lock()
+<<<<<<< HEAD
 
 adminUserListId = [
 
@@ -25,6 +30,10 @@ UrlYOUTOBE = [
 commands_list = [
     "/start - Начало работы с ботом",
     "/User_id - Получить свой ID пользователя"
+=======
+commands_list = [
+    "/User_id - Получить свой ID пользователя",
+>>>>>>> 05e1f37274116ee528aa48e0ae293133424b6f5f
 ]
 
 @rout.message(Command("start"))
