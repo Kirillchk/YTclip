@@ -1,14 +1,16 @@
 from aiogram.filters import Command
 from aiogram import Router
 from aiogram.types import Message
-from config import adminMainListId, download_path, trimed_path, trimed_video_file_path
+from config import adminMainListId, download_path
 from aiogram.types import FSInputFile
 from converter import convert_time_string_to_seconds as conv
 from YouTobeVideo import download_video_youtube
 import asyncio
 import os
+from apps.TikTokVideo import download_tiktok_video
 
 rout = Router()
+process_lock = asyncio.Lock()
 
 adminUserListId = [
 
@@ -22,9 +24,7 @@ UrlYOUTOBE = [
 # Список доступных команд
 commands_list = [
     "/start - Начало работы с ботом",
-    "/User_id - Получить свой ID пользователя",
-    "/RemoveAdmin [id] - Удалить администратора (доступно только главному администратору)",
-    "/AddAdmin [id] - Добавить администратора",
+    "/User_id - Получить свой ID пользователя"
 ]
 
 @rout.message(Command("start"))
@@ -75,53 +75,62 @@ async def handler_add_admit(message: Message):
         await message.answer("У вас нет прав для добавления администраторов.")
 
 
-process_lock = asyncio.Lock()
-
-import re
-
-
-def is_valid_url(url):
-    youtube_regex = re.compile(
-        r'^(https?://)?(www\.)?(youtube\.com|youtu\.?be)/.+$'
-    )
-    return youtube_regex.match(url) is not None
 
 
 @rout.message()
 async def handler_command_add_product(message: Message):
     async with process_lock:
-        text = message.text.split(' ')
-        text = [item for item in text if item]
-        length = len(text)
-        start = conv(None if length < 2 else text[1])
-        end = conv(None if length < 3 else text[2])
-        url = text[0]
+        clear_directory(download_path)
+        global message_lowed
+        try:
+            text = message.text.split(' ')
+            text = [item for item in text if item]
+            length = len(text)
+            start = conv(None if length < 2 else text[1])
+            end = conv(None if length < 3 else text[2])
+            url = text[0]
 
-        if not is_valid_url(url):
-            return
+            if "youtube.com" in url or "youtu.be" in url:
+                message_lowed = await message.answer("Загрузка...")
+                if start is None:
 
-        if url.startswith("https://youtu.be/"):
-            url = url.replace("https://youtu.be/", "https://www.youtube.com/watch?v=")
+                    download_video_youtube(url)
+                else:
+                    download_video_youtube(url, start, end)
 
-        if start is None:
-            message_lowed = await message.answer("Загрузка...")
-            download_video_youtube(url)
-        else:
-            message_lowed = await message.answer("Загрузка...")
-            download_video_youtube(url, start, end)
+                files = os.listdir(download_path)
+                if files:
+                    latest_file = files[0]
+                    video_file_path = os.path.join(download_path, latest_file)
+                    video = FSInputFile(video_file_path)
+                    await message.answer_video(video)
+                else:
+                    await message.answer("Video was not found")
 
-        files = os.listdir(download_path)
-        if files:
+                await message_lowed.delete()
+                await message.delete()
 
-            latest_file = files[0]
-            video_file_path = os.path.join(download_path, latest_file)
-            video = FSInputFile(video_file_path)
-            await message.answer_video(video)
-            await message_lowed.delete()
-            await message.delete()
-            clear_directory(download_path)
-        else:
-            await message.answer("Video was not found")
+
+            elif "tiktok.com" in url or "vt.tiktok.com" in url:
+                message_lowed = await message.answer("Загрузка...")
+                download_tiktok_video(url)
+                files = os.listdir(download_path)
+                if files:
+                    latest_file = files[0]
+                    video_file_path = os.path.join(download_path, latest_file)
+                    video = FSInputFile(video_file_path)
+                    await message.answer_video(video)
+                else:
+                    await message.answer("Video was not found")
+
+                await message_lowed.delete()
+                await message.delete()
+        finally:
+            if message_lowed:
+                await message_lowed.delete()
+            await message.answer("Ошибка загрузки видео.")
+
+
 
 
 def clear_directory(directory_path):

@@ -5,6 +5,7 @@ from aiogram import Bot, Dispatcher
 from apps.handler import rout
 from apps.VisualInterface import set_bot_commands
 
+
 bot = Bot(token=config.TOKEN)
 dp = Dispatcher()
 
