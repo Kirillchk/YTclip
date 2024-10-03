@@ -27,5 +27,3 @@ def trim_video(input_file_path, output_file, start_time, end_time):
         trimmed_video.write_videofile(output_file, codec='libx264', audio_codec='aac')
 
     print("Video trimming completed and file saved.")
-
-

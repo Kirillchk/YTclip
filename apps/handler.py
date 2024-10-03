@@ -13,6 +13,7 @@ rout = Router()
 process_lock = asyncio.Lock()
 commands_list = [
     "/User_id - Получить свой ID пользователя",
+    "/info - выводит информацию о боте"
 ]
 
 @rout.message(Command("start"))
@@ -20,12 +21,14 @@ async def handler_command_start(message: Message):
     commands_text = "\n".join(commands_list)
     await message.answer(f"Привет! Вот список доступных команд:\n{commands_text}")
 
+@rout.message(Command("info"))
+async def handler_command_start(message: Message):
+    await message.answer(f"этот бот скачивает видео с ютуб и токток по предоставленной ссылке")
+
 
 @rout.message(Command("user_id"))
 async def handler_id_user(message: Message):
     await message.answer(str(message.from_user.id))
-
-
 
 
 @rout.message()
@@ -44,11 +47,9 @@ async def handler_command_add_product(message: Message):
             if "youtube.com" in url or "youtu.be" in url:
                 message_lowed = await message.answer("Загрузка...")
                 if start is None:
-
                     download_video_youtube(url)
                 else:
                     download_video_youtube(url, start, end)
-
                 files = os.listdir(download_path)
                 if files:
                     latest_file = files[0]
@@ -57,11 +58,8 @@ async def handler_command_add_product(message: Message):
                     await message.answer_video(video)
                 else:
                     await message.answer("Video was not found")
-
                 await message_lowed.delete()
                 await message.delete()
-
-
             elif "tiktok.com" in url or "vt.tiktok.com" in url:
                 message_lowed = await message.answer("Загрузка...")
                 download_tiktok_video(url)
@@ -73,15 +71,12 @@ async def handler_command_add_product(message: Message):
                     await message.answer_video(video)
                 else:
                     await message.answer("Video was not found")
-
                 await message_lowed.delete()
                 await message.delete()
         finally:
             if message_lowed:
                 await message_lowed.delete()
             await message.answer("Ошибка загрузки видео.")
-
-
 
 
 def clear_directory(directory_path):

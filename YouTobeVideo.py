@@ -5,7 +5,7 @@ from config import download_path
 import browser_cookie3
 
 
-cookies = getattr(browser_cookie3,'firefox')(domain_name='www.youtube.com')
+cookies = getattr(browser_cookie3, 'firefox')(domain_name='www.youtube.com')
 
 def download_video_youtube(input_string, start_time=None, end_time=None):
     try:
@@ -30,5 +30,5 @@ def download_video_youtube(input_string, start_time=None, end_time=None):
         with yt_dlp.YoutubeDL(yt_opts) as ydl:
             ydl.download([input_string])
             return
-    except:
-        print()
+    except Exception:
+        print("error")
