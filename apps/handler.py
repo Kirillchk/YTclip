@@ -21,6 +21,10 @@ async def handler_command_start(message: Message):
     commands_text = "\n".join(commands_list)
     await message.answer(f"Привет! Вот список доступных команд:\n{commands_text}")
 
+@rout.message(Command("info"))
+async def handler_command_start(message: Message):
+    await message.answer(f"этот бот скачивает видео с ютуб и токток по предоставленной ссылке")
+
 
 @rout.message(Command("user_id"))
 async def handler_id_user(message: Message):
@@ -30,9 +34,11 @@ async def handler_id_user(message: Message):
 async def handler_command_start(message: Message):
     await message.answer(f"Ну короче, кидай ссылку, а я тебе перешлю видео.\nЕсли нужно скачать видео целиком: Скидываешь URL. \nЕсли нужно скачать 10 секунд, то указываете первый таймкод. \nЕсли нужен клип, то указываете два таймкода")
 
+
 @rout.message(Command("Sponsor"))
 async def handler_command_start(message: Message):
     await message.answer(f"Поддержать проект можно по этой ссылке:https://youtu.be/sYbo-BIOHmI?si=s1xH6_TlfllvuFHp")
+
 
 @rout.message()
 async def handler_command_add_product(message: Message):
@@ -50,11 +56,9 @@ async def handler_command_add_product(message: Message):
             if "youtube.com" in url or "youtu.be" in url:
                 message_lowed = await message.answer("Загрузка...")
                 if start is None:
-
                     download_video_youtube(url)
                 else:
                     download_video_youtube(url, start, end)
-
                 files = os.listdir(download_path)
                 if files:
                     latest_file = files[0]
@@ -63,11 +67,8 @@ async def handler_command_add_product(message: Message):
                     await message.answer_video(video)
                 else:
                     await message.answer("Video was not found")
-
                 await message_lowed.delete()
                 await message.delete()
-
-
             elif "tiktok.com" in url or "vt.tiktok.com" in url:
                 message_lowed = await message.answer("Загрузка...")
                 download_tiktok_video(url)
@@ -79,15 +80,12 @@ async def handler_command_add_product(message: Message):
                     await message.answer_video(video)
                 else:
                     await message.answer("Video was not found")
-
                 await message_lowed.delete()
                 await message.delete()
         finally:
             if message_lowed:
                 await message_lowed.delete()
             await message.answer("Ошибка загрузки видео.")
-
-
 
 
 def clear_directory(directory_path):
