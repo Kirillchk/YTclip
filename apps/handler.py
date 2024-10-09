@@ -13,6 +13,7 @@ rout = Router()
 process_lock = asyncio.Lock()
 commands_list = [
     "/User_id - Получить свой ID пользователя",
+    "/information - Дает информацию"
 ]
 
 @rout.message(Command("start"))
@@ -25,7 +26,9 @@ async def handler_command_start(message: Message):
 async def handler_id_user(message: Message):
     await message.answer(str(message.from_user.id))
 
-
+@rout.message(Command("information"))
+async def handler_command_start(message: Message):
+    await message.answer(f"Ну короче, кидай ссылку, а я тебе перешлю видео.\n Если нужно скачать видео целиком: Скидываешь URL. \n Если нужно скачать 10 секунд, то указываете первый таймкод. \n Если нужен клип, то указываете два таймкода")
 
 
 @rout.message()
