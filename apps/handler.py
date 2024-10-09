@@ -30,6 +30,9 @@ async def handler_id_user(message: Message):
 async def handler_command_start(message: Message):
     await message.answer(f"Ну короче, кидай ссылку, а я тебе перешлю видео.\nЕсли нужно скачать видео целиком: Скидываешь URL. \nЕсли нужно скачать 10 секунд, то указываете первый таймкод. \nЕсли нужен клип, то указываете два таймкода")
 
+@rout.message(Command("Sponsor"))
+async def handler_command_start(message: Message):
+    await message.answer(f"Поддержать проект можно по этой ссылке:https://youtu.be/sYbo-BIOHmI?si=s1xH6_TlfllvuFHp")
 
 @rout.message()
 async def handler_command_add_product(message: Message):
